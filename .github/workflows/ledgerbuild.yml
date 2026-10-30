@@ -13,12 +13,12 @@ on:
      ECRURL:
       description: "ECR Registry URL"
       required: true
-      default: "533003975599.dkr.ecr.ap-south-1.amazonaws.com/fintech-ledger"
+      default: "533003975599.dkr.ecr.ap-south-1.amazonaws.com"
 
      APPREPO:
       description: "Docker Repo Name"
       required: true
-      default: "fintechledger"
+      default: "fintech-ledger"
 
      REGION:
       description: "AWS Region"
@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       # -----------------------------
       # Build Spring Boot Jar
@@ -136,7 +136,7 @@ jobs:
       - name: Build and Push Docker Image
         env:
           ECR_REGISTRY: ${{ inputs.ECRURL || '533003975599.dkr.ecr.ap-south-1.amazonaws.com' }}
-          REPOSITORY: ${{ inputs.APPREPO || 'wezvatechledger' }}
+          REPOSITORY: ${{ inputs.APPREPO || 'fintech-ledger' }}
           IMAGE_TAG: rel${{ github.run_number }}
         run: |
           echo "Building Docker Image..."
@@ -151,7 +151,7 @@ jobs:
         run: |
           for i in {1..12}; do
             STATUS=$(aws ecr describe-image-scan-findings \
-              --repository-name ${{ inputs.APPREPO || 'wezvatechledger' }} \
+              --repository-name ${{ inputs.APPREPO || 'fintech-ledger' }} \
               --image-id imageTag=rel${{ github.run_number }} \
               --query 'imageScanStatus.status' \
               --output text 2>/dev/null || echo "NOT_FOUND")
@@ -181,13 +181,13 @@ jobs:
         id: scan
         run: |
           CRITICAL=$(aws ecr describe-image-scan-findings \
-            --repository-name ${{ inputs.APPREPO || 'wezvatechledger' }} \
+            --repository-name ${{ inputs.APPREPO || 'fintech-ledger' }} \
             --image-id imageTag=rel${{ github.run_number }} \
             --query 'imageScanFindings.findingSeverityCounts.CRITICAL' \
             --output text 2>/dev/null || echo 0)
 
           HIGH=$(aws ecr describe-image-scan-findings \
-            --repository-name ${{ inputs.APPREPO || 'wezvatechledger' }} \
+            --repository-name ${{ inputs.APPREPO || 'fintech-ledger' }} \
             --image-id imageTag=rel${{ github.run_number }} \
             --query 'imageScanFindings.findingSeverityCounts.HIGH' \
             --output text 2>/dev/null || echo 0)
@@ -234,8 +234,8 @@ jobs:
           -d "{
             \"ref\":\"main\",
             \"inputs\": {
-              \"ECRURL\": \"${{ inputs.ECRURL }}/\",
-              \"REPO\": \"${{ inputs.APPREPO }}\",
+              \"ECRURL\": \"${{ inputs.ECRURL || '533003975599.dkr.ecr.ap-south-1.amazonaws.com' }}\",
+              \"REPO\": \"${{ inputs.APPREPO || 'fintech-ledger' }}\",
               \"IMAGE\": \"$IMAGE_TAG\",
               \"TEST\": \"regression\"
             }
