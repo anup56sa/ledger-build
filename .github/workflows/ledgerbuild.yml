@@ -230,7 +230,7 @@ jobs:
           curl -X POST \
           -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
           -H "Accept: application/vnd.github+json" \
-          https://api.github.com/repos/wezva-fintech/ledger-deployment/actions/workflows/deploy.yml/dispatches \
+          https://api.github.com/repos/anup56sa/ledger-deploy/actions/workflows/deploy.yml/dispatches \
           -d "{
             \"ref\":\"main\",
             \"inputs\": {
